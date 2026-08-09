@@ -1,0 +1,12 @@
+# Compiled binaries
+ReverseProxy/reverse_proxy
+AuthService/auth_service
+user/user_service
+product/product_server
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Build artifacts
+*.o

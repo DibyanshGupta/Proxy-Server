@@ -8,6 +8,7 @@
 #include "../include/LeastConnections.h"
 #include "../include/HealthChecker.h"
 #include "../include/SlidingWindow.h"
+#include "../include/PerUserRateLimiter.h"
 
 #include <thread>
 #include <iostream>
@@ -30,7 +31,10 @@ int main()
     // Router
     // --------------------------------------------------
 
-   SlidingWindow rateLimiter(10, 60);
+   PerUserRateLimiter rateLimiter(
+    10,
+    60
+);
 
 Router router(
     &productLB,

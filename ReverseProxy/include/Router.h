@@ -5,24 +5,26 @@
 
 #include "ServerPool.h"
 #include "LoadBalancer.h"
-#include "RateLimiter.h"
+#include "PerUserRateLimiter.h"
 
 class Router
 {
 private:
+
     ServerPool productPool;
     ServerPool userPool;
 
     LoadBalancer* productLB;
     LoadBalancer* userLB;
 
-    RateLimiter* rateLimiter;
+    PerUserRateLimiter* rateLimiter;
 
 public:
+
     Router(
         LoadBalancer* pLB,
         LoadBalancer* uLB,
-        RateLimiter* limiter
+        PerUserRateLimiter* limiter
     );
 
     BackendServer* getServer(
@@ -40,7 +42,9 @@ public:
         double responseTime
     );
 
-    bool allowRequest();
+    bool allowRequest(
+        const std::string& username
+    );
 
     ServerPool& getProductPool();
 

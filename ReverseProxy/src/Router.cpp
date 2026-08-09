@@ -3,7 +3,7 @@
 Router::Router(
     LoadBalancer* pLB,
     LoadBalancer* uLB,
-    RateLimiter* limiter
+    PerUserRateLimiter* limiter
 )
 {
     productLB = pLB;
@@ -11,14 +11,16 @@ Router::Router(
     rateLimiter = limiter;
 }
 
-bool Router::allowRequest()
+bool Router::allowRequest(
+    const std::string& username
+)
 {
     if (rateLimiter == nullptr)
     {
         return true;
     }
 
-    return rateLimiter->allow();
+    return rateLimiter->allow(username);
 }
 
 BackendServer* Router::getServer(

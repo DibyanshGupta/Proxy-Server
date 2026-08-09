@@ -16,7 +16,8 @@ SRC = src/main.cpp \
       src/HealthChecker.cpp \
       src/JwtVerifier.cpp \
       src/SlidingWindow.cpp \
-      src/TokenBucket.cpp
+      src/TokenBucket.cpp \
+      src/PerUserRateLimiter.cpp
 
 TARGET = reverse_proxy
 

@@ -357,7 +357,7 @@ void handleClient(
 // Rate limiting
 // --------------------------------------------------
 
-if (!router.allowRequest())
+if (!router.allowRequest(username))
 {
     cout << "Rate limit exceeded for user: "
          << username
