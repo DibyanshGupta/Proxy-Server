@@ -5,6 +5,7 @@
 
 #include "ServerPool.h"
 #include "LoadBalancer.h"
+#include "RateLimiter.h"
 
 class Router
 {
@@ -15,10 +16,13 @@ private:
     LoadBalancer* productLB;
     LoadBalancer* userLB;
 
+    RateLimiter* rateLimiter;
+
 public:
     Router(
         LoadBalancer* pLB,
-        LoadBalancer* uLB
+        LoadBalancer* uLB,
+        RateLimiter* limiter
     );
 
     BackendServer* getServer(
@@ -35,6 +39,8 @@ public:
         BackendServer* server,
         double responseTime
     );
+
+    bool allowRequest();
 
     ServerPool& getProductPool();
 

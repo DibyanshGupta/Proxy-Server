@@ -14,7 +14,9 @@ SRC = src/main.cpp \
       src/LeastResponseTime.cpp \
       src/WeightedRoundRobin.cpp \
       src/HealthChecker.cpp \
-      src/JwtVerifier.cpp
+      src/JwtVerifier.cpp \
+      src/SlidingWindow.cpp \
+      src/TokenBucket.cpp
 
 TARGET = reverse_proxy
 

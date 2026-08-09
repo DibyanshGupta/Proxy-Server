@@ -7,6 +7,7 @@
 #include "../include/RoundRobin.h"
 #include "../include/LeastConnections.h"
 #include "../include/HealthChecker.h"
+#include "../include/SlidingWindow.h"
 
 #include <thread>
 #include <iostream>
@@ -29,11 +30,13 @@ int main()
     // Router
     // --------------------------------------------------
 
-    Router router(
-        &productLB,
-        &userLB
-    );
+   SlidingWindow rateLimiter(10, 60);
 
+Router router(
+    &productLB,
+    &userLB,
+    &rateLimiter
+);
 
     // --------------------------------------------------
     // Backend servers

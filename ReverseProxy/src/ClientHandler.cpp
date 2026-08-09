@@ -353,6 +353,29 @@ void handleClient(
          << role
          << endl;
 
+    // --------------------------------------------------
+// Rate limiting
+// --------------------------------------------------
+
+if (!router.allowRequest())
+{
+    cout << "Rate limit exceeded for user: "
+         << username
+         << endl;
+
+    sendHttpResponse(
+        client,
+        "429 Too Many Requests",
+        "{\"error\":\"Rate limit exceeded\"}"
+    );
+
+    close(client);
+
+    return;
+}
+
+cout << "Rate limit check passed."
+     << endl;
 
     // --------------------------------------------------
     // Select backend server
