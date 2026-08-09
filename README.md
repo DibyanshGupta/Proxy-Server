@@ -77,6 +77,7 @@ Proxy/
 │   │   ├── LeastConnections.h
 │   │   ├── LeastResponseTime.h
 │   │   ├── LoadBalancer.h
+│   │   ├── PerUserRateLimiter.h
 │   │   ├── RateLimiter.h
 │   │   ├── Router.h
 │   │   ├── RoundRobin.h
@@ -94,6 +95,7 @@ Proxy/
 │   │   ├── JwtVerifier.cpp
 │   │   ├── LeastConnections.cpp
 │   │   ├── LeastResponseTime.cpp
+│   │   ├── PerUserRateLimiter.cpp
 │   │   ├── Router.cpp
 │   │   ├── RoundRobin.cpp
 │   │   ├── Server.cpp
@@ -141,7 +143,10 @@ JWT Verification
   +---- Invalid/Expired ----> 401 Unauthorized
   |
   v
-Rate Limiter
+Extract username from JWT
+  |
+  v
+Per-User Rate Limiter
   |
   +---- Limit exceeded -----> 429 Too Many Requests
   |
@@ -407,7 +412,7 @@ Passwords are never stored as plaintext.
 
 ## Rate Limiting
 
-The project contains a common:
+The project provides a common:
 
 ```text
 RateLimiter
@@ -423,9 +428,47 @@ RateLimiter
     +-- TokenBucket
 ```
 
+The Reverse Proxy currently uses a **per-user Sliding Window rate limiter**.
+
+### Per-User Rate Limiting
+
+Rate limiting is performed **after successful JWT verification**.
+
+The authenticated username is extracted from the JWT `sub` claim and is used as the key for an independent rate limiter.
+
+```text
+PerUserRateLimiter
+    |
+    +-- alice   → SlidingWindow
+    |
+    +-- bob     → SlidingWindow
+    |
+    +-- charlie → SlidingWindow
+```
+
+The current configuration is:
+
+```text
+10 requests per user
+60-second window
+```
+
+Each user therefore has an independent request history.
+
+For example:
+
+```text
+Alice reaches her limit → 429 Too Many Requests
+Bob is still within his limit → 200 OK
+```
+
+Alice's requests do not consume Bob's rate-limit quota.
+
+The rate-limit state is protected for concurrent access because multiple Reverse Proxy worker threads can process requests simultaneously.
+
 ### Sliding Window
 
-The current implementation limits requests within a time window.
+The Sliding Window implementation tracks request timestamps and removes entries that have fallen outside the configured window.
 
 Example configuration:
 
@@ -434,13 +477,13 @@ Example configuration:
 60 seconds
 ```
 
-Once the limit is exceeded:
+Once a user's limit is exceeded:
 
 ```text
 429 Too Many Requests
 ```
 
-Test:
+Test with a valid JWT:
 
 ```bash
 for i in {1..12}; do
@@ -452,7 +495,7 @@ for i in {1..12}; do
 done
 ```
 
-Example result:
+Example result after a clean window:
 
 ```text
 200
@@ -464,16 +507,16 @@ Example result:
 200
 200
 200
-429
+200
 429
 429
 ```
 
-The exact point at which `429` begins depends on requests already made during the active window.
+The exact point at which `429` begins depends on requests already made during the active 60-second window.
 
 ### Token Bucket
 
-The Token Bucket maintains:
+The Token Bucket implementation maintains:
 
 - Capacity
 - Current token count
@@ -777,12 +820,12 @@ Expected response:
 | JWT Verification | Complete |
 | Sliding Window Rate Limiting | Complete |
 | Token Bucket | Complete |
+| Per-User Rate Limiting | Complete |
 
 ## Future Improvements
 
 Possible future improvements include:
 
-- Per-user rate limiting
 - HTTPS/TLS
 - HTTP health-check endpoints
 - Graceful shutdown
@@ -826,4 +869,4 @@ https://github.com/DibyanshGupta/Proxy-Server
 
 ---
 
-This project demonstrates the implementation and integration of a multithreaded reverse proxy with authentication, load balancing, backend health monitoring, and rate limiting in C++.
+This project demonstrates the implementation and integration of a multithreaded reverse proxy with authentication, per-user rate limiting, load balancing, backend health monitoring, and rate limiting algorithms in C++.
