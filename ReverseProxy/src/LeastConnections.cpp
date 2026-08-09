@@ -1,42 +1,69 @@
 #include "../include/LeastConnections.h"
 
-BackendServer* LeastConnections::nextServer(ServerPool &pool)
+#include <climits>
+
+BackendServer* LeastConnections::nextServer(
+    ServerPool& pool
+)
 {
     std::lock_guard<std::mutex> lock(mtx);
 
-    std::vector<BackendServer> &servers = pool.getServers();
+    std::vector<BackendServer>& servers =
+        pool.getServers();
 
-    BackendServer *best = nullptr;
+    BackendServer* selected = nullptr;
 
-    for (auto &server : servers)
+    int minimumConnections = INT_MAX;
+
+    for (auto& server : servers)
     {
         if (!server.healthy)
         {
             continue;
         }
 
-        if (best == nullptr ||
-            server.activeConnections < best->activeConnections)
+        if (server.activeConnections <
+            minimumConnections)
         {
-            best = &server;
+            minimumConnections =
+                server.activeConnections;
+
+            selected = &server;
         }
     }
 
-    return best;
+    return selected;
 }
 
-void LeastConnections::requestStarted(BackendServer *server)
+
+void LeastConnections::requestStarted(
+    BackendServer* server
+)
 {
-    if (server)
+    if (server == nullptr)
     {
-        server->activeConnections++;
+        return;
     }
+
+    std::lock_guard<std::mutex> lock(mtx);
+
+    server->activeConnections++;
 }
 
-void LeastConnections::requestFinished(BackendServer *server,
-                                       double)
+
+void LeastConnections::requestFinished(
+    BackendServer* server,
+    double responseTime
+)
 {
-    if (server)
+    if (server == nullptr)
+    {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(mtx);
+
+    if (server->activeConnections > 0)
     {
         server->activeConnections--;
     }

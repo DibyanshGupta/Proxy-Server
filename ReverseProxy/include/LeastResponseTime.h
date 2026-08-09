@@ -13,10 +13,14 @@ private:
 
 public:
 
-    BackendServer* nextServer(ServerPool &pool) override;
+    BackendServer* nextServer(
+        ServerPool& pool
+    ) override;
 
-    void requestFinished(BackendServer *server,
-                         double responseTime) override;
+    void requestFinished(
+        BackendServer* server,
+        double responseTime
+    ) override;
 };
 
 #endif

@@ -13,7 +13,9 @@ private:
 
 public:
 
-    BackendServer* nextServer(ServerPool &pool) override;
+    BackendServer* nextServer(
+        ServerPool& pool
+    ) override;
 };
 
 #endif

@@ -1,8 +1,8 @@
 #ifndef HEALTHCHECKER_H
 #define HEALTHCHECKER_H
 
-#include <thread>
 #include <atomic>
+#include <thread>
 
 #include "ServerPool.h"
 
@@ -10,7 +10,7 @@ class HealthChecker
 {
 private:
 
-    ServerPool &pool;
+    ServerPool& pool;
 
     std::thread worker;
 
@@ -20,7 +20,9 @@ private:
 
 public:
 
-    HealthChecker(ServerPool &p);
+    HealthChecker(
+        ServerPool& p
+    );
 
     void start();
 

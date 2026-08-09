@@ -1,24 +1,28 @@
 #ifndef LEASTCONNECTIONS_H
 #define LEASTCONNECTIONS_H
 
-#include <mutex>
-
 #include "LoadBalancer.h"
+
+#include <mutex>
 
 class LeastConnections : public LoadBalancer
 {
 private:
-
     std::mutex mtx;
 
 public:
+    BackendServer* nextServer(
+        ServerPool& pool
+    ) override;
 
-    BackendServer* nextServer(ServerPool &pool) override;
+    void requestStarted(
+        BackendServer* server
+    ) override;
 
-    void requestStarted(BackendServer *server) override;
-
-    void requestFinished(BackendServer *server,
-                         double responseTime) override;
+    void requestFinished(
+        BackendServer* server,
+        double responseTime
+    ) override;
 };
 
 #endif

@@ -3,17 +3,21 @@
 
 #include "LoadBalancer.h"
 
+#include <mutex>
+
 class RoundRobin : public LoadBalancer
 {
 private:
-
     int index;
 
-public:
+    std::mutex mtx;
 
+public:
     RoundRobin();
 
-    BackendServer* nextServer(ServerPool &pool) override;
+    BackendServer* nextServer(
+        ServerPool& pool
+    ) override;
 };
 
 #endif
