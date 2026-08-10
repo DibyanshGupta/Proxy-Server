@@ -52,7 +52,7 @@ void Server::start()
     serverAddress.sin_addr.s_addr = INADDR_ANY;
 
     // Bind
-    if (bind(
+    if (::bind(
             serverSocket,
             (sockaddr*)&serverAddress,
             sizeof(serverAddress)) < 0)
